@@ -18,4 +18,6 @@ jQuery for JavaScript functionality
 
 Give it a try!"
 
+here is the codepen link https://codepen.io/Ajay-naik-the-bashful/pen/qEWgJWy
+
 https://github.com/user-attachments/assets/7d7ebf61-28af-4f08-8d6c-702d7f1017da
