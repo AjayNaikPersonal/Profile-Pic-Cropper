@@ -1,0 +1,255 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Update</title>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- jQuery (Required for Bootstrap tooltips and other features) -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <!-- Cropper.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="col-md-6 text-center">
+        <h5 class="card-title">Preview</h5>
+        <div class="border p-4 position-relative" style="height: 350px;">
+            <!-- Avatar Preview -->
+            <div id="avatarPreview" style="width: 100%; height: 100%; text-align: center;">
+   
+                <img id="profile-image-preview" 
+                    src="{{ profile_img.url }}" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Your Profile Image" 
+                    onerror="">
+            </div>
+            
+            <!-- Camera Icon -->
+            <label for="profilePicture" 
+                class="btn btn-light position-absolute d-flex justify-content-center align-items-center" 
+                style="top: 10px; right: 10px; width: 50px; height: 50px; border-radius: 50%;">
+                <i class="fa fa-camera" style="font-size: 24px;" data-bs-toggle="tooltip" 
+                data-bs-placement="right" title="Upload your image instead" ></i>
+            </label>
+            
+            <!-- Hidden File Input -->
+            <input type="file" id="profilePicture" accept="image/*" class="d-none" onchange="previewImage(event)">
+        </div>
+        <button type="button" id="saveAvatarConfig" class="btn btn-outline-dark mt-3">Save Avatar</button>
+    </div>
+
+    <!-- Bootstrap Modal for Image Preview -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagePreviewModalLabel">Crop Your Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="imagePreviewContainer" style="text-align: center;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="saveCroppedImage">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+
+
+<style>
+    /* .cropper-view-box {
+        box-shadow: 0 0 0 1px #39f;
+        border-radius: 50%;
+        outline: 0;
+    }
+    .cropper-face {
+        background-color:inherit !important;
+    }
+    .cropper-view-box {
+        outline:inherit !important;
+    } */
+
+     /* Ensure the cropper area is visually appealing */
+    .cropper-view-box {
+        box-shadow: 0 0 5px rgba(57, 159, 255, 0.8);
+        border-radius: 50%;
+        outline: none;
+    }
+
+    .cropper-face {
+        background-color: transparent !important;
+    }
+
+    .cropper-container {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    /* Avatar Preview */
+    #avatarPreview img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    #avatarPreview img:hover {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
+
+    /* Camera Icon Styling */
+    label[for="profilePicture"] {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid #ccc;
+        transition: all 0.3s ease-in-out;
+    }
+
+    label[for="profilePicture"]:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.1);
+    }
+
+    /* Modal Image Preview */
+    #imagePreviewContainer img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Button Enhancements */
+    #saveAvatarConfig,
+    #saveCroppedImage {
+        /* border-radius: 25px; */
+        padding: 10px 20px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #saveAvatarConfig:hover,
+    #saveCroppedImage:hover {
+        background-color: #343a40;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive Fix */
+    @media (max-width: 768px) {
+        #avatarPreview {
+            height: 250px;
+        }
+
+        #imagePreviewContainer img {
+            max-height: 250px;
+        }
+    }
+
+</style>
+
+<script>
+    let cropper; // To store the Cropper.js instance
+
+    // Function to show image preview and initialize Cropper.js
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            const imgPreview = document.createElement('img');
+            imgPreview.id = 'cropperImage';
+            imgPreview.src = reader.result;
+            imgPreview.alt = 'Avatar Preview';
+            imgPreview.style.maxWidth = '50%';
+
+            const imageContainer = document.getElementById('imagePreviewContainer');
+            imageContainer.innerHTML = ''; // Clear previous content
+            imageContainer.appendChild(imgPreview);
+
+            // Show the modal with the image preview
+            const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            imagePreviewModal.show();
+
+            // Initialize Cropper.js
+            imagePreviewModal._element.addEventListener('shown.bs.modal', function () {
+                const imageElement = document.getElementById('cropperImage');
+                cropper = new Cropper(imageElement, {
+                    aspectRatio: 1, // For a square crop
+                    viewMode: 1, // Restrict the crop box to within the canvas
+                    preview: '.crop-preview', // Add a small preview if desired
+                });
+            });
+
+            // Destroy Cropper.js instance when the modal is closed
+            imagePreviewModal._element.addEventListener('hidden.bs.modal', function () {
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                location.reload(); // Refresh the page when modal is closed
+            });
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Function to handle the crop and save
+    function cropAndSave() {
+        if (!cropper) return;
+
+        const croppedCanvas = cropper.getCroppedCanvas({
+            width: 250,
+            height: 250,
+        });
+
+        // Convert canvas to base64 or Blob (for uploading)
+        const croppedImage = croppedCanvas.toDataURL('image/png'); // Base64 URL
+
+        // For demo, set the cropped image as the avatar
+        const avatarPreview = document.getElementById('avatarPreview');
+        avatarPreview.innerHTML = `<img src="${croppedImage}" alt="Cropped Image" style="cursor:pointer;">`;
+
+        // Call this function with your cropped image data
+        downloadCroppedImage(croppedImage);
+    }
+
+    function downloadCroppedImage(croppedImage) {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = croppedImage; // Set image URL
+        downloadLink.download = "cropped-image.png"; // Set filename
+        document.body.appendChild(downloadLink);
+        downloadLink.click(); // Auto-click to download
+        document.body.removeChild(downloadLink); // Remove after download
+    }
+
+
+
+    // Attach event listener to the Save button inside the modal
+    $(document).ready(function () {
+        $('#saveCroppedImage').click(function () {
+            cropAndSave();
+        });
+    });
+</script>
+
+</html>
